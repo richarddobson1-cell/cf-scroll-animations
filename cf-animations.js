@@ -349,3 +349,163 @@
     init();
   }
 })();
+
+/* ============================================================
+   === Clara Futura — WordPress Click-to-Reveal Section Headers
+   ============================================================ */
+(function() {
+  'use strict';
+
+  // ---------- Inject CSS once ----------
+  var CSS_ID = 'cf-wp-collapsible-css';
+  if (!document.getElementById(CSS_ID)) {
+    var style = document.createElement('style');
+    style.id = CSS_ID;
+    style.textContent = [
+      '.cf-wp-collapsible{position:relative;transition:padding .6s ease}',
+      '.cf-wp-collapsible.is-closed{padding-bottom:2.5rem!important}',
+      '.cf-wp-collapsible.is-open{padding-bottom:5rem!important}',
+      '.cf-wp-header-trigger{cursor:pointer;position:relative;padding-right:4rem;user-select:none;-webkit-tap-highlight-color:transparent;display:block}',
+      '.cf-wp-header-trigger h2{transition:color .4s ease,text-shadow .4s ease}',
+      '.cf-wp-header-trigger:hover h2{color:#F2B54D!important;text-shadow:0 0 22px rgba(242,181,77,.35)}',
+      '.cf-wp-toggle-icon{position:absolute;right:0;top:50%;transform:translateY(-50%);width:44px;height:44px;border:1px solid rgba(242,181,77,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .5s cubic-bezier(.16,1,.3,1),border-color .3s,background .3s;background:rgba(242,181,77,.04);box-sizing:border-box}',
+      '.cf-wp-toggle-icon svg{width:16px;height:16px;transition:transform .5s cubic-bezier(.16,1,.3,1)}',
+      '.cf-wp-header-trigger:hover .cf-wp-toggle-icon{border-color:#F2B54D;background:rgba(242,181,77,.12);transform:translateY(-50%) scale(1.08)}',
+      '.cf-wp-collapsible.is-open .cf-wp-toggle-icon svg{transform:rotate(45deg)}',
+      '.cf-wp-collapsible.is-open .cf-wp-toggle-icon{border-color:#F2B54D;background:rgba(242,181,77,.18)}',
+      '.cf-wp-head-hint{display:block;margin-top:.75rem;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(181,190,198,.7);font-weight:400;transition:color .35s ease,opacity .35s ease}',
+      '.cf-wp-header-trigger:hover .cf-wp-head-hint{color:#F2B54D;opacity:1}',
+      '.cf-wp-collapsible.is-open .cf-wp-head-hint{opacity:0;pointer-events:none;margin-top:0;max-height:0;overflow:hidden}',
+      '.cf-wp-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .7s cubic-bezier(.16,1,.3,1),opacity .5s ease,margin-top .5s ease;opacity:0;margin-top:0}',
+      '.cf-wp-collapsible.is-open .cf-wp-body{grid-template-rows:1fr;opacity:1;margin-top:2rem}',
+      '.cf-wp-body-inner{overflow:hidden;min-height:0}',
+      '.cf-wp-collapsible.is-open .cf-wp-body-inner>*{animation:cfWpChildIn .8s cubic-bezier(.16,1,.3,1) both}',
+      '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(1){animation-delay:.25s}',
+      '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(2){animation-delay:.35s}',
+      '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(3){animation-delay:.45s}',
+      '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(4){animation-delay:.55s}',
+      '@keyframes cfWpChildIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  function makeToggleIcon() {
+    var wrap = document.createElement('span');
+    wrap.className = 'cf-wp-toggle-icon';
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.innerHTML =
+      '<svg viewBox="0 0 16 16" fill="none">' +
+        '<line x1="8" y1="2" x2="8" y2="14" stroke="#F2B54D" stroke-width="1.25" stroke-linecap="round"/>' +
+        '<line x1="2" y1="8" x2="14" y2="8" stroke="#F2B54D" stroke-width="1.25" stroke-linecap="round"/>' +
+      '</svg>';
+    return wrap;
+  }
+
+  function buildCollapsibleFor(group, openByDefault) {
+    // Find the inner constrained wrapper (where blocks live)
+    var inner = group.querySelector(':scope > .wp-block-group') || group;
+    // Find the h2 within
+    var h2 = inner.querySelector(':scope > h2');
+    if (!h2) return;
+    if (inner.querySelector('.cf-wp-header-trigger')) return;
+
+    // Build trigger wrapping just the h2 + hint + icon
+    var trigger = document.createElement('div');
+    trigger.className = 'cf-wp-header-trigger';
+    trigger.setAttribute('role', 'button');
+    trigger.setAttribute('tabindex', '0');
+    trigger.setAttribute('aria-expanded', openByDefault ? 'true' : 'false');
+
+    // Move h2 into trigger
+    var h2Parent = h2.parentElement;
+    trigger.appendChild(h2);
+    trigger.appendChild(makeToggleIcon());
+
+    var hint = document.createElement('span');
+    hint.className = 'cf-wp-head-hint';
+    hint.textContent = 'Click to expand';
+    trigger.appendChild(hint);
+
+    // Insert trigger in h2's old position
+    h2Parent.insertBefore(trigger, h2Parent.firstChild);
+
+    // Gather everything after trigger into body
+    var body = document.createElement('div');
+    body.className = 'cf-wp-body';
+    var bodyInner = document.createElement('div');
+    bodyInner.className = 'cf-wp-body-inner';
+    body.appendChild(bodyInner);
+
+    var remaining = [];
+    Array.prototype.forEach.call(h2Parent.children, function(child) {
+      if (child === trigger) return;
+      remaining.push(child);
+    });
+    remaining.forEach(function(c) { bodyInner.appendChild(c); });
+
+    h2Parent.appendChild(body);
+
+    group.classList.add('cf-wp-collapsible');
+    group.classList.add(openByDefault ? 'is-open' : 'is-closed');
+
+    function toggle() {
+      var isOpen = group.classList.contains('is-open');
+      if (isOpen) {
+        group.classList.remove('is-open');
+        group.classList.add('is-closed');
+        trigger.setAttribute('aria-expanded', 'false');
+        hint.textContent = 'Click to expand';
+      } else {
+        group.classList.remove('is-closed');
+        group.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+        hint.textContent = 'Click to close';
+        // Ensure any scroll-reveal'd children become visible immediately
+        bodyInner.querySelectorAll('.cf-reveal, .wp-block-group, .wp-block-columns, .wp-block-image, .wp-block-quote, p, figure').forEach(function(el) {
+          el.classList.add('cf-visible');
+          el.style.opacity = '';
+          el.style.transform = '';
+        });
+        setTimeout(function() {
+          var rect = group.getBoundingClientRect();
+          if (rect.top < 110 || rect.top > window.innerHeight * 0.4) {
+            window.scrollTo({ top: window.scrollY + rect.top - 110, behavior: 'smooth' });
+          }
+        }, 50);
+      }
+    }
+
+    trigger.addEventListener('click', toggle);
+    trigger.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  }
+
+  function initWpCollapsibles() {
+    // Find every top-level .wp-block-group.alignfull that contains an h2
+    var candidates = document.querySelectorAll('.entry-content .wp-block-group.alignfull, main .wp-block-group.alignfull');
+    var groups = [];
+    Array.prototype.forEach.call(candidates, function(g) {
+      // Must contain an h2 (direct or in immediate inner group)
+      var inner = g.querySelector(':scope > .wp-block-group') || g;
+      var h2 = inner.querySelector(':scope > h2');
+      if (!h2) return;
+      // Skip if the group is INSIDE a cover/hero
+      if (g.closest('.wp-block-cover')) return;
+      // Skip groups already inside another collapsible
+      if (g.closest('.cf-wp-collapsible') && g.closest('.cf-wp-collapsible') !== g) return;
+      groups.push(g);
+    });
+
+    // First group is open by default so users see content immediately
+    groups.forEach(function(g, i) {
+      buildCollapsibleFor(g, i === 0);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWpCollapsibles);
+  } else {
+    initWpCollapsibles();
+  }
+})();
