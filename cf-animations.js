@@ -152,7 +152,12 @@
     /* Clear WP admin bar when present (logged-in users) */
     'body.admin-bar .cf-ambient-btn{top:52px;}',
     '@media(max-width:782px){body.admin-bar .cf-ambient-btn{top:60px;}}',
-    '@media(max-width:600px){.cf-ambient-btn{top:12px;right:12px;width:38px;height:38px;}.cf-ambient-btn svg{width:14px;height:14px;}}'
+    '@media(max-width:600px){.cf-ambient-btn{top:12px;right:12px;width:38px;height:38px;}.cf-ambient-btn svg{width:14px;height:14px;}}',
+    /* === Make top navigation sticky on ALL pages (WP theme header + cf-header) === */
+    'body > .wp-site-blocks > header,body > .wp-site-blocks > .wp-block-template-part:first-child,.wp-site-blocks > header.wp-block-template-part{position:sticky !important;top:0;z-index:9999;background:rgba(12,33,55,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(242,181,77,0.15);transition:background .3s}',
+    '.cf-header{position:sticky !important;top:0;z-index:9999;background:rgba(12,33,55,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}',
+    'body.admin-bar > .wp-site-blocks > header,body.admin-bar > .wp-site-blocks > .wp-block-template-part:first-child,body.admin-bar .cf-header{top:32px}',
+    '@media(max-width:782px){body.admin-bar > .wp-site-blocks > header,body.admin-bar > .wp-site-blocks > .wp-block-template-part:first-child,body.admin-bar .cf-header{top:46px}}'
   ].join('');
   document.head.appendChild(css);
 
@@ -388,18 +393,19 @@
       '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(3){animation-delay:.45s}',
       '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(4){animation-delay:.55s}',
       '@keyframes cfWpChildIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}',
-      /* === Pulsating-light animation on CLOSED tabs === */
-      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon{animation:cfWpTabPulse 2.8s ease-in-out infinite}',
-      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(242,181,77,.5);animation:cfWpTabRing 2.8s ease-out infinite;pointer-events:none}',
-      '.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:cfWpHintBreathe 3.2s ease-in-out infinite}',
+      /* === Pulsating-light animation on CLOSED tabs — BRIGHTER, WIDER RIPPLE === */
+      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon{animation:cfWpTabPulse 2.6s ease-in-out infinite;position:relative}',
+      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(242,181,77,.85);animation:cfWpTabRing 2.6s ease-out infinite;pointer-events:none;box-shadow:0 0 20px rgba(242,181,77,.5)}',
+      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(242,181,77,.6);animation:cfWpTabRing 2.6s ease-out infinite;animation-delay:1.3s;pointer-events:none}',
+      '.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:cfWpHintBreathe 3s ease-in-out infinite}',
       '.cf-wp-header-trigger:hover .cf-wp-toggle-icon,.cf-wp-header-trigger:hover .cf-wp-head-hint{animation-play-state:paused}',
-      '.cf-wp-header-trigger:hover .cf-wp-toggle-icon::before{animation-play-state:paused;opacity:0}',
-      '.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-head-hint{animation-delay:.9s}',
-      '.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-head-hint{animation-delay:1.6s}',
-      '@keyframes cfWpTabPulse{0%,100%{border-color:rgba(242,181,77,.4);background:rgba(242,181,77,.04);box-shadow:0 0 0 0 rgba(242,181,77,0)}50%{border-color:rgba(242,181,77,.9);background:rgba(242,181,77,.14);box-shadow:0 0 18px 2px rgba(242,181,77,.35),0 0 0 6px rgba(242,181,77,.08)}}',
-      '@keyframes cfWpTabRing{0%{transform:scale(1);opacity:.6}80%,100%{transform:scale(1.6);opacity:0}}',
-      '@keyframes cfWpHintBreathe{0%,100%{color:rgba(181,190,198,.7);opacity:.7;text-shadow:0 0 0 rgba(242,181,77,0)}50%{color:rgba(242,181,77,.9);opacity:1;text-shadow:0 0 12px rgba(242,181,77,.4)}}',
-      '@media (prefers-reduced-motion:reduce){.cf-wp-collapsible.is-closed .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:none}}'
+      '.cf-wp-header-trigger:hover .cf-wp-toggle-icon::before,.cf-wp-header-trigger:hover .cf-wp-toggle-icon::after{animation-play-state:paused;opacity:0}',
+      '.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon::after,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-head-hint{animation-delay:.9s}',
+      '.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon::after,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-head-hint{animation-delay:1.6s}',
+      '@keyframes cfWpTabPulse{0%,100%{border-color:rgba(242,181,77,.55);background:rgba(242,181,77,.08);box-shadow:0 0 0 0 rgba(242,181,77,0)}50%{border-color:rgba(255,200,90,1);background:rgba(242,181,77,.28);box-shadow:0 0 40px 8px rgba(242,181,77,.75),0 0 80px 20px rgba(242,181,77,.35),0 0 0 14px rgba(242,181,77,.18)}}',
+      '@keyframes cfWpTabRing{0%{transform:scale(1);opacity:.95;border-width:2px}80%,100%{transform:scale(3.2);opacity:0;border-width:.5px}}',
+      '@keyframes cfWpHintBreathe{0%,100%{color:rgba(181,190,198,.7);opacity:.7;text-shadow:0 0 0 rgba(242,181,77,0)}50%{color:rgba(255,210,120,1);opacity:1;text-shadow:0 0 20px rgba(242,181,77,.75),0 0 40px rgba(242,181,77,.4)}}',
+      '@media (prefers-reduced-motion:reduce){.cf-wp-collapsible.is-closed .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::after,.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:none}}'
     ].join('\n');
     document.head.appendChild(style);
   }
