@@ -394,7 +394,7 @@
       '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(4){animation-delay:.55s}',
       '@keyframes cfWpChildIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}',
       /* === Pulsating-light animation on CLOSED tabs — BRIGHTER, WIDER RIPPLE === */
-      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon{animation:cfWpTabPulse 2.6s ease-in-out infinite;position:relative}',
+      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon{animation:cfWpTabPulse 2.6s ease-in-out infinite}',
       '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(242,181,77,.85);animation:cfWpTabRing 2.6s ease-out infinite;pointer-events:none;box-shadow:0 0 20px rgba(242,181,77,.5)}',
       '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid rgba(242,181,77,.6);animation:cfWpTabRing 2.6s ease-out infinite;animation-delay:1.3s;pointer-events:none}',
       '.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:cfWpHintBreathe 3s ease-in-out infinite}',
