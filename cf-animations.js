@@ -425,9 +425,67 @@
       /* Music button: quiet on first screen */
       '.ambient-music-btn{opacity:0.42;transition:opacity .6s cubic-bezier(.16,1,.3,1),border-color .3s,background .3s,transform .2s}',
       'body.cf-wp-scrolled .ambient-music-btn,.ambient-music-btn:hover,.ambient-music-btn:focus-visible{opacity:1}',
-      'body:not(.cf-wp-scrolled) .ambient-pulse-ring{animation-play-state:paused;opacity:0}'
+      'body:not(.cf-wp-scrolled) .ambient-pulse-ring{animation-play-state:paused;opacity:0}',
+      /* === MOBILE MENU FIX (Apr 2026) === */
+      /* Force the open menu panel above iframes, hide iframes beneath so menu items are readable */
+      '.wp-block-navigation__responsive-container.is-menu-open{z-index:2147483000 !important;background:#0C2137 !important}',
+      'body.cf-mobile-menu-open iframe{visibility:hidden !important}',
+      /* Bigger, cleaner tap targets + readable type in the open menu */
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content{padding:5rem 1.5rem 2rem;max-width:420px;margin:0 auto}',
+      '.wp-block-navigation__responsive-container.is-menu-open ul.wp-block-navigation__container{display:flex;flex-direction:column;gap:0.15rem;list-style:none;padding:0;margin:0}',
+      '.wp-block-navigation__responsive-container.is-menu-open ul.wp-block-page-list{display:flex;flex-direction:column;gap:0.15rem;list-style:none;padding:0;margin:0;width:100%}',
+      '.wp-block-navigation__responsive-container.is-menu-open li{list-style:none;padding:0;margin:0;border-bottom:1px solid rgba(181,190,198,0.12)}',
+      '.wp-block-navigation__responsive-container.is-menu-open li:last-child{border-bottom:none}',
+      '.wp-block-navigation__responsive-container.is-menu-open li a{display:block;padding:1.1rem 0.25rem;font-size:1.05rem;letter-spacing:0.01em;color:#E8E5DD !important;text-decoration:none;font-weight:400;transition:color .25s ease,padding-left .3s ease}',
+      '.wp-block-navigation__responsive-container.is-menu-open li a:hover,.wp-block-navigation__responsive-container.is-menu-open li a:focus{color:#F2B54D !important;padding-left:0.5rem}',
+      '.wp-block-navigation__responsive-container.is-menu-open li.current-menu-item a,.wp-block-navigation__responsive-container.is-menu-open li a[aria-current="page"]{color:#F2B54D !important;border:none;background:transparent}',
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-close{color:#F2B54D !important;top:1.25rem;right:1.25rem}',
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-close svg{width:28px;height:28px;fill:#F2B54D}'
     ].join('\n');
     document.head.appendChild(style);
+  }
+
+  // === MOBILE MENU: rewrite obscure labels + toggle body class so iframes hide ===
+  function cfRewriteMenuLabels() {
+    var map = {
+      'beyond the selfish gene': 'Research',
+      'the hard problem': 'Consciousness',
+      'case studies & endorsements': 'Case Studies',
+      'case studies &amp; endorsements': 'Case Studies',
+      'clara futura world': 'Home'
+    };
+    var links = document.querySelectorAll('.wp-block-navigation__container a, .wp-block-page-list a');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      if (a.dataset.cfRenamed) continue;
+      var t = (a.textContent || '').trim().toLowerCase();
+      if (map[t]) {
+        a.textContent = map[t];
+        a.dataset.cfRenamed = '1';
+      }
+    }
+  }
+
+  function cfWatchMobileMenu() {
+    // Toggle body class whenever the menu open/close state changes
+    var update = function() {
+      var open = !!document.querySelector('.wp-block-navigation__responsive-container.is-menu-open');
+      document.body.classList.toggle('cf-mobile-menu-open', open);
+    };
+    update();
+    var mo = new MutationObserver(function(muts) {
+      cfRewriteMenuLabels();
+      update();
+    });
+    mo.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], childList: true });
+  }
+
+  // Kick off label rewrite early and watch the menu
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { cfRewriteMenuLabels(); cfWatchMobileMenu(); });
+  } else {
+    cfRewriteMenuLabels();
+    cfWatchMobileMenu();
   }
 
   function makeToggleIcon() {
