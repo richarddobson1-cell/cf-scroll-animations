@@ -135,7 +135,7 @@
   // Inject CSS
   var css = document.createElement('style');
   css.textContent = [
-    '.cf-ambient-btn{position:fixed;top:20px;right:22px;z-index:100000;width:44px;height:44px;border-radius:50%;',
+    '.cf-ambient-btn{position:fixed;bottom:22px;right:22px;z-index:100000;width:44px;height:44px;border-radius:50%;',
     'border:1.5px solid rgba(242,181,77,0.5);background:rgba(12,33,55,0.85);backdrop-filter:blur(12px);',
     '-webkit-backdrop-filter:blur(12px);cursor:pointer;display:flex;align-items:center;justify-content:center;',
     'padding:0;transition:border-color .3s,background .3s,transform .2s;outline:none;}',
@@ -150,9 +150,7 @@
     '.cf-ambient-btn.is-playing .cf-amb-ring{border-color:rgba(242,181,77,0.6);}',
     '@keyframes cfAmbPulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}',
     /* Clear WP admin bar when present (logged-in users) */
-    'body.admin-bar .cf-ambient-btn{top:52px;}',
-    '@media(max-width:782px){body.admin-bar .cf-ambient-btn{top:60px;}}',
-    '@media(max-width:600px){.cf-ambient-btn{top:12px;right:12px;width:38px;height:38px;}.cf-ambient-btn svg{width:14px;height:14px;}}',
+    '@media(max-width:600px){.cf-ambient-btn{bottom:14px;right:14px;width:38px;height:38px;}.cf-ambient-btn svg{width:14px;height:14px;}}',
     /* === Make top navigation sticky on ALL pages (WP theme header + cf-header) === */
     'body > .wp-site-blocks > header,body > .wp-site-blocks > .wp-block-template-part:first-child,.wp-site-blocks > header.wp-block-template-part{position:sticky !important;top:0;z-index:9999;background:rgba(12,33,55,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(242,181,77,0.15);transition:background .3s}',
     '.cf-header{position:sticky !important;top:0;z-index:9999;background:rgba(12,33,55,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}',
