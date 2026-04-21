@@ -499,7 +499,7 @@
 
     // First group is open by default so users see content immediately
     groups.forEach(function(g, i) {
-      buildCollapsibleFor(g, i === 0);
+      buildCollapsibleFor(g, false);
     });
   }
 
