@@ -135,7 +135,7 @@
   // Inject CSS
   var css = document.createElement('style');
   css.textContent = [
-    '.cf-ambient-btn{position:fixed;bottom:28px;right:28px;z-index:9999;width:48px;height:48px;border-radius:50%;',
+    '.cf-ambient-btn{position:fixed;top:20px;right:22px;z-index:100000;width:44px;height:44px;border-radius:50%;',
     'border:1.5px solid rgba(242,181,77,0.5);background:rgba(12,33,55,0.85);backdrop-filter:blur(12px);',
     '-webkit-backdrop-filter:blur(12px);cursor:pointer;display:flex;align-items:center;justify-content:center;',
     'padding:0;transition:border-color .3s,background .3s,transform .2s;outline:none;}',
@@ -149,7 +149,10 @@
     '.cf-amb-ring-2{animation-delay:1.25s;}',
     '.cf-ambient-btn.is-playing .cf-amb-ring{border-color:rgba(242,181,77,0.6);}',
     '@keyframes cfAmbPulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0}}',
-    '@media(max-width:600px){.cf-ambient-btn{bottom:16px;right:16px;width:42px;height:42px;}.cf-ambient-btn svg{width:15px;height:15px;}}'
+    /* Clear WP admin bar when present (logged-in users) */
+    'body.admin-bar .cf-ambient-btn{top:52px;}',
+    '@media(max-width:782px){body.admin-bar .cf-ambient-btn{top:60px;}}',
+    '@media(max-width:600px){.cf-ambient-btn{top:12px;right:12px;width:38px;height:38px;}.cf-ambient-btn svg{width:14px;height:14px;}}'
   ].join('');
   document.head.appendChild(css);
 
@@ -384,7 +387,19 @@
       '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(2){animation-delay:.35s}',
       '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(3){animation-delay:.45s}',
       '.cf-wp-collapsible.is-open .cf-wp-body-inner>*:nth-child(4){animation-delay:.55s}',
-      '@keyframes cfWpChildIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}'
+      '@keyframes cfWpChildIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}',
+      /* === Pulsating-light animation on CLOSED tabs === */
+      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon{animation:cfWpTabPulse 2.8s ease-in-out infinite}',
+      '.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(242,181,77,.5);animation:cfWpTabRing 2.8s ease-out infinite;pointer-events:none}',
+      '.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:cfWpHintBreathe 3.2s ease-in-out infinite}',
+      '.cf-wp-header-trigger:hover .cf-wp-toggle-icon,.cf-wp-header-trigger:hover .cf-wp-head-hint{animation-play-state:paused}',
+      '.cf-wp-header-trigger:hover .cf-wp-toggle-icon::before{animation-play-state:paused;opacity:0}',
+      '.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed:nth-of-type(2n) .cf-wp-head-hint{animation-delay:.9s}',
+      '.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed:nth-of-type(3n) .cf-wp-head-hint{animation-delay:1.6s}',
+      '@keyframes cfWpTabPulse{0%,100%{border-color:rgba(242,181,77,.4);background:rgba(242,181,77,.04);box-shadow:0 0 0 0 rgba(242,181,77,0)}50%{border-color:rgba(242,181,77,.9);background:rgba(242,181,77,.14);box-shadow:0 0 18px 2px rgba(242,181,77,.35),0 0 0 6px rgba(242,181,77,.08)}}',
+      '@keyframes cfWpTabRing{0%{transform:scale(1);opacity:.6}80%,100%{transform:scale(1.6);opacity:0}}',
+      '@keyframes cfWpHintBreathe{0%,100%{color:rgba(181,190,198,.7);opacity:.7;text-shadow:0 0 0 rgba(242,181,77,0)}50%{color:rgba(242,181,77,.9);opacity:1;text-shadow:0 0 12px rgba(242,181,77,.4)}}',
+      '@media (prefers-reduced-motion:reduce){.cf-wp-collapsible.is-closed .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:none}}'
     ].join('\n');
     document.head.appendChild(style);
   }
