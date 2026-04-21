@@ -216,3 +216,136 @@
     injectPlayer();
   }
 })();
+
+/* ============================================================
+   === Clara Futura — Preloader + Custom Amber Cursor (WP)
+   ============================================================ */
+(function() {
+  'use strict';
+
+  // Detect iframe — skip both features inside iframes (WP uses none here, but safe)
+  var inIframe = false;
+  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+  if (inIframe) return;
+
+  // ---------- Inject CSS once ----------
+  var CSS_ID = 'cf-premium-polish-css';
+  if (!document.getElementById(CSS_ID)) {
+    var style = document.createElement('style');
+    style.id = CSS_ID;
+    style.textContent = [
+      /* Preloader */
+      '.cf-wp-preloader{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem;background:radial-gradient(ellipse at center,#122C45 0%,#0C2137 60%,#081827 100%);opacity:1;visibility:visible;transition:opacity .9s cubic-bezier(.16,1,.3,1),visibility .9s;pointer-events:auto}',
+      '.cf-wp-preloader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}',
+      '.cf-wp-preloader svg{width:180px;height:180px;filter:drop-shadow(0 0 18px rgba(242,181,77,.35))}',
+      '.cf-wp-pre-arc{animation:cfWpArc 2.4s cubic-bezier(.5,0,.15,1) infinite;transform-origin:100px 100px}',
+      '@keyframes cfWpArc{0%{stroke-dashoffset:502;transform:rotate(-90deg)}50%{stroke-dashoffset:0;transform:rotate(90deg)}100%{stroke-dashoffset:-502;transform:rotate(270deg)}}',
+      '.cf-wp-pre-pulse{transform-origin:100px 100px;animation:cfWpPulse 2.4s ease-in-out infinite}',
+      '@keyframes cfWpPulse{0%,100%{opacity:.2;transform:scale(.96)}50%{opacity:.8;transform:scale(1.06)}}',
+      '.cf-wp-pre-label{font-family:Inter,sans-serif;font-size:.7rem;font-weight:400;letter-spacing:.65em;color:rgba(232,229,221,.55);text-indent:.65em;text-transform:uppercase}',
+      /* Cursor */
+      '.cf-wp-cursor{position:fixed;top:0;left:0;width:8px;height:8px;background:#F2B54D;border-radius:50%;pointer-events:none;z-index:100000;transform:translate3d(-100px,-100px,0);transition:opacity .3s,background .25s,width .25s,height .25s;box-shadow:0 0 12px rgba(242,181,77,.7);opacity:0}',
+      '.cf-wp-cursor-outer{position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid rgba(242,181,77,.35);border-radius:50%;pointer-events:none;z-index:99999;transform:translate3d(-100px,-100px,0);transition:border-color .25s,opacity .3s,width .25s,height .25s,background .25s;opacity:0}',
+      'body.cf-wp-cursor-ready .cf-wp-cursor,body.cf-wp-cursor-ready .cf-wp-cursor-outer{opacity:1}',
+      'body.cf-wp-cursor-hover .cf-wp-cursor-outer{border-color:rgba(242,181,77,.8);background:rgba(242,181,77,.08);width:52px;height:52px}',
+      'body.cf-wp-cursor-hover .cf-wp-cursor{background:#F5C870;width:6px;height:6px;box-shadow:0 0 18px rgba(242,181,77,.9)}',
+      '@media (pointer:fine){body.cf-wp-cursor-ready,body.cf-wp-cursor-ready a,body.cf-wp-cursor-ready button,body.cf-wp-cursor-ready [role=button]{cursor:none}}',
+      '@media (pointer:coarse){.cf-wp-cursor,.cf-wp-cursor-outer{display:none!important}}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  // ---------- Inject Preloader DOM ----------
+  function injectPreloader() {
+    if (document.getElementById('cfWpPreloader')) return;
+    var pre = document.createElement('div');
+    pre.id = 'cfWpPreloader';
+    pre.className = 'cf-wp-preloader';
+    pre.setAttribute('aria-hidden', 'true');
+    pre.innerHTML = [
+      '<svg viewBox="0 0 200 200" fill="none" aria-hidden="true">',
+      '<circle cx="100" cy="100" r="80" stroke="rgba(242,181,77,0.12)" stroke-width="1"/>',
+      '<circle cx="100" cy="100" r="80" stroke="#F2B54D" stroke-width="1.5" stroke-linecap="round" ',
+      'stroke-dasharray="502" stroke-dashoffset="502" class="cf-wp-pre-arc" transform="rotate(-90 100 100)"/>',
+      '<circle cx="100" cy="100" r="54" stroke="rgba(242,181,77,0.3)" stroke-width="0.5" class="cf-wp-pre-pulse"/>',
+      '<text x="100" y="108" text-anchor="middle" fill="#F2B54D" font-family="Georgia,serif" ',
+      'font-size="28" font-weight="300" letter-spacing="4">CF</text>',
+      '</svg>',
+      '<div class="cf-wp-pre-label">CLARA&nbsp;FUTURA&nbsp;WORLD</div>'
+    ].join('');
+    document.body.insertBefore(pre, document.body.firstChild);
+
+    var hide = function() {
+      setTimeout(function() {
+        pre.classList.add('is-hidden');
+        setTimeout(function() { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 1200);
+      }, 500);
+    };
+    if (document.readyState === 'complete') hide();
+    else window.addEventListener('load', hide);
+    setTimeout(hide, 4500); // safety
+  }
+
+  // ---------- Inject Cursor DOM ----------
+  function injectCursor() {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (document.getElementById('cfWpCursor')) return;
+
+    var cursor = document.createElement('div');
+    cursor.id = 'cfWpCursor';
+    cursor.className = 'cf-wp-cursor';
+    cursor.setAttribute('aria-hidden', 'true');
+
+    var outer = document.createElement('div');
+    outer.id = 'cfWpCursorOuter';
+    outer.className = 'cf-wp-cursor-outer';
+    outer.setAttribute('aria-hidden', 'true');
+
+    document.body.appendChild(cursor);
+    document.body.appendChild(outer);
+
+    var mx = -100, my = -100, ox = -100, oy = -100, ready = false;
+
+    document.addEventListener('mousemove', function(e) {
+      mx = e.clientX; my = e.clientY;
+      if (!ready) { ready = true; document.body.classList.add('cf-wp-cursor-ready'); }
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', function() {
+      cursor.style.opacity = '0'; outer.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', function() {
+      cursor.style.opacity = ''; outer.style.opacity = '';
+    });
+
+    function tick() {
+      ox += (mx - ox) * 0.18;
+      oy += (my - oy) * 0.18;
+      var hovered = document.body.classList.contains('cf-wp-cursor-hover');
+      var rh = hovered ? 26 : 20, dh = hovered ? 3 : 4;
+      outer.style.transform = 'translate3d(' + (ox - rh) + 'px,' + (oy - rh) + 'px,0)';
+      cursor.style.transform = 'translate3d(' + (mx - dh) + 'px,' + (my - dh) + 'px,0)';
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    var hoverSel = 'a,button,[role="button"],input,textarea,select,.wp-block-button__link,.cf-ambient-btn';
+    document.addEventListener('mouseover', function(e) {
+      if (e.target.closest && e.target.closest(hoverSel)) document.body.classList.add('cf-wp-cursor-hover');
+    }, { passive: true });
+    document.addEventListener('mouseout', function(e) {
+      if (e.target.closest && e.target.closest(hoverSel)) document.body.classList.remove('cf-wp-cursor-hover');
+    }, { passive: true });
+  }
+
+  function init() {
+    injectPreloader();
+    injectCursor();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
