@@ -417,7 +417,15 @@
       '@keyframes cfWpTabPulse{0%,100%{border-color:rgba(242,181,77,.55);background:rgba(242,181,77,.08);box-shadow:0 0 0 0 rgba(242,181,77,0)}50%{border-color:rgba(255,200,90,1);background:rgba(242,181,77,.28);box-shadow:0 0 40px 8px rgba(242,181,77,.75),0 0 80px 20px rgba(242,181,77,.35),0 0 0 14px rgba(242,181,77,.18)}}',
       '@keyframes cfWpTabRing{0%{transform:scale(1);opacity:.95;border-width:2px}80%,100%{transform:scale(3.2);opacity:0;border-width:.5px}}',
       '@keyframes cfWpHintBreathe{0%,100%{color:rgba(181,190,198,.7);opacity:.7;text-shadow:0 0 0 rgba(242,181,77,0)}50%{color:rgba(255,210,120,1);opacity:1;text-shadow:0 0 20px rgba(242,181,77,.75),0 0 40px rgba(242,181,77,.4)}}',
-      '@media (prefers-reduced-motion:reduce){.cf-wp-collapsible.is-closed .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::after,.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:none}}'
+      '@media (prefers-reduced-motion:reduce){.cf-wp-collapsible.is-closed .cf-wp-toggle-icon,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before,.cf-wp-collapsible.is-closed .cf-wp-toggle-icon::after,.cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:none}}',
+      /* === RESTRAINT PASS: suppress pulse until user engages === */
+      'body:not(.cf-wp-engaged) .cf-wp-collapsible.is-closed .cf-wp-toggle-icon{animation:none;box-shadow:0 0 0 0 rgba(242,181,77,0) !important}',
+      'body:not(.cf-wp-engaged) .cf-wp-collapsible.is-closed .cf-wp-toggle-icon::before,body:not(.cf-wp-engaged) .cf-wp-collapsible.is-closed .cf-wp-toggle-icon::after{animation:none;opacity:0}',
+      'body:not(.cf-wp-engaged) .cf-wp-collapsible.is-closed .cf-wp-head-hint{animation:none}',
+      /* Music button: quiet on first screen */
+      '.ambient-music-btn{opacity:0.42;transition:opacity .6s cubic-bezier(.16,1,.3,1),border-color .3s,background .3s,transform .2s}',
+      'body.cf-wp-scrolled .ambient-music-btn,.ambient-music-btn:hover,.ambient-music-btn:focus-visible{opacity:1}',
+      'body:not(.cf-wp-scrolled) .ambient-pulse-ring{animation-play-state:paused;opacity:0}'
     ].join('\n');
     document.head.appendChild(style);
   }
@@ -541,4 +549,24 @@
   } else {
     initWpCollapsibles();
   }
+
+  // === RESTRAINT PASS (Apr 2026) ===
+  // cf-wp-scrolled: first real scroll > 40px
+  // cf-wp-engaged: scrolled > 60% of viewport height
+  var wpScrolled = false, wpEngaged = false;
+  function onWpScroll() {
+    var y = window.scrollY || window.pageYOffset || 0;
+    if (!wpScrolled && y > 40) {
+      wpScrolled = true;
+      document.body.classList.add('cf-wp-scrolled');
+    }
+    if (!wpEngaged && y > (window.innerHeight * 0.6)) {
+      wpEngaged = true;
+      document.body.classList.add('cf-wp-engaged');
+    }
+    if (wpScrolled && wpEngaged) {
+      window.removeEventListener('scroll', onWpScroll);
+    }
+  }
+  window.addEventListener('scroll', onWpScroll, { passive: true });
 })();
