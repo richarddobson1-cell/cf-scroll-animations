@@ -426,21 +426,23 @@
       '.ambient-music-btn{opacity:0.42;transition:opacity .6s cubic-bezier(.16,1,.3,1),border-color .3s,background .3s,transform .2s}',
       'body.cf-wp-scrolled .ambient-music-btn,.ambient-music-btn:hover,.ambient-music-btn:focus-visible{opacity:1}',
       'body:not(.cf-wp-scrolled) .ambient-pulse-ring{animation-play-state:paused;opacity:0}',
-      /* === MOBILE MENU FIX (Apr 2026) === */
-      /* Force the open menu panel above iframes, hide iframes beneath so menu items are readable */
-      '.wp-block-navigation__responsive-container.is-menu-open{z-index:2147483000 !important;background:#0C2137 !important}',
+      /* === MOBILE MENU FIX v2 (Apr 2026) === */
+      /* Force the open menu panel to fill the viewport + sit above iframes */
+      '.wp-block-navigation__responsive-container.is-menu-open{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;width:100vw !important;height:100vh !important;min-height:100vh !important;max-height:none !important;z-index:2147483000 !important;background:#0C2137 !important;overflow-y:auto !important;overflow-x:hidden !important;display:block !important;padding:0 !important;margin:0 !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-close{min-height:100vh !important;display:block !important;padding:0 !important;margin:0 !important;width:100% !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-dialog{min-height:100vh !important;width:100% !important;display:block !important;padding:0 !important;margin:0 !important}',
       'body.cf-mobile-menu-open iframe{visibility:hidden !important}',
-      /* Bigger, cleaner tap targets + readable type in the open menu */
-      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content{padding:5rem 1.5rem 2rem;max-width:420px;margin:0 auto}',
-      '.wp-block-navigation__responsive-container.is-menu-open ul.wp-block-navigation__container{display:flex;flex-direction:column;gap:0.15rem;list-style:none;padding:0;margin:0}',
-      '.wp-block-navigation__responsive-container.is-menu-open ul.wp-block-page-list{display:flex;flex-direction:column;gap:0.15rem;list-style:none;padding:0;margin:0;width:100%}',
-      '.wp-block-navigation__responsive-container.is-menu-open li{list-style:none;padding:0;margin:0;border-bottom:1px solid rgba(181,190,198,0.12)}',
-      '.wp-block-navigation__responsive-container.is-menu-open li:last-child{border-bottom:none}',
-      '.wp-block-navigation__responsive-container.is-menu-open li a{display:block;padding:1.1rem 0.25rem;font-size:1.05rem;letter-spacing:0.01em;color:#E8E5DD !important;text-decoration:none;font-weight:400;transition:color .25s ease,padding-left .3s ease}',
-      '.wp-block-navigation__responsive-container.is-menu-open li a:hover,.wp-block-navigation__responsive-container.is-menu-open li a:focus{color:#F2B54D !important;padding-left:0.5rem}',
-      '.wp-block-navigation__responsive-container.is-menu-open li.current-menu-item a,.wp-block-navigation__responsive-container.is-menu-open li a[aria-current="page"]{color:#F2B54D !important;border:none;background:transparent}',
-      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-close{color:#F2B54D !important;top:1.25rem;right:1.25rem}',
-      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-close svg{width:28px;height:28px;fill:#F2B54D}'
+      /* Inner content wrapper */
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content{padding:5rem 2rem 3rem !important;max-width:460px !important;margin:0 auto !important;width:100% !important;display:block !important;box-sizing:border-box !important}',
+      /* Reset the UL flex layout to vertical stack */
+      '.wp-block-navigation__responsive-container.is-menu-open ul.wp-block-navigation__container,.wp-block-navigation__responsive-container.is-menu-open ul.wp-block-page-list{display:flex !important;flex-direction:column !important;gap:0 !important;list-style:none !important;padding:0 !important;margin:0 !important;width:100% !important;align-items:stretch !important;justify-content:flex-start !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open li{list-style:none !important;padding:0 !important;margin:0 !important;width:100% !important;display:block !important;border-bottom:1px solid rgba(181,190,198,0.12) !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open li:last-child{border-bottom:none !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open li a{display:block !important;width:100% !important;padding:1.15rem 0.25rem !important;font-size:1.05rem !important;letter-spacing:0.01em !important;color:#E8E5DD !important;text-decoration:none !important;font-weight:400 !important;background:transparent !important;border:none !important;box-shadow:none !important;text-align:left !important;transition:color .25s ease,padding-left .3s ease}',
+      '.wp-block-navigation__responsive-container.is-menu-open li a:hover,.wp-block-navigation__responsive-container.is-menu-open li a:focus{color:#F2B54D !important;padding-left:0.5rem !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open li.current-menu-item a,.wp-block-navigation__responsive-container.is-menu-open li a[aria-current="page"]{color:#F2B54D !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-close{position:absolute !important;color:#F2B54D !important;top:1.25rem !important;right:1.25rem !important;z-index:10 !important;background:transparent !important;border:none !important}',
+      '.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-close svg{width:28px !important;height:28px !important;fill:#F2B54D !important}'
     ].join('\n');
     document.head.appendChild(style);
   }
