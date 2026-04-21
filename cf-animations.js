@@ -315,12 +315,26 @@
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX; my = e.clientY;
       if (!ready) { ready = true; document.body.classList.add('cf-wp-cursor-ready'); }
+      // Hide outer cursor when hovering over an iframe (iframe has its own cursor)
+      var tgt = e.target;
+      if (tgt && tgt.tagName === 'IFRAME') {
+        cursor.style.opacity = '0'; outer.style.opacity = '0';
+      } else {
+        cursor.style.opacity = ''; outer.style.opacity = '';
+      }
     }, { passive: true });
 
     document.addEventListener('mouseleave', function() {
       cursor.style.opacity = '0'; outer.style.opacity = '0';
     });
     document.addEventListener('mouseenter', function() {
+      cursor.style.opacity = ''; outer.style.opacity = '';
+    });
+    // Blur fires when iframe takes focus (mouse over it)
+    window.addEventListener('blur', function() {
+      cursor.style.opacity = '0'; outer.style.opacity = '0';
+    });
+    window.addEventListener('focus', function() {
       cursor.style.opacity = ''; outer.style.opacity = '';
     });
 
