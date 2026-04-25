@@ -118,8 +118,10 @@
   var FADE_STEPS = 40;
 
   // Create audio element
+  // preload='none' so Chromium does NOT auto-fetch the MP3 on every page load.
+  // The full file is fetched only after the user clicks Play (see fadeIn()).
   var audio = document.createElement('audio');
-  audio.preload = 'auto';
+  audio.preload = 'none';
   audio.loop = true;
   audio.src = AUDIO_SRC;
 
@@ -178,6 +180,8 @@
   function fadeIn() {
     clearFade();
     audio.volume = 0;
+    // Lazy-promote preload so the browser fetches the file on first play only
+    if (audio.preload !== 'auto') { audio.preload = 'auto'; }
     audio.play().then(function() {
       isPlaying = true;
       updateUI();
