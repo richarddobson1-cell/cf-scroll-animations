@@ -315,24 +315,30 @@
     document.body.appendChild(outer);
 
     var mx = -100, my = -100, ox = -100, oy = -100, ready = false;
+    var hovered = false;
+    var overIframe = false;
 
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX; my = e.clientY;
       if (!ready) { ready = true; document.body.classList.add('cf-wp-cursor-ready'); }
-      // Hide outer cursor when hovering over an iframe (iframe has its own cursor)
+      // Hide outer cursor when hovering over an iframe — only toggle on transition
+      // to avoid writing styles on every move event.
       var tgt = e.target;
-      if (tgt && tgt.tagName === 'IFRAME') {
-        cursor.style.opacity = '0'; outer.style.opacity = '0';
-      } else {
-        cursor.style.opacity = ''; outer.style.opacity = '';
+      var nowOverIframe = !!(tgt && tgt.tagName === 'IFRAME');
+      if (nowOverIframe !== overIframe) {
+        overIframe = nowOverIframe;
+        cursor.style.opacity = nowOverIframe ? '0' : '';
+        outer.style.opacity = nowOverIframe ? '0' : '';
       }
     }, { passive: true });
 
     document.addEventListener('mouseleave', function() {
       cursor.style.opacity = '0'; outer.style.opacity = '0';
+      overIframe = false;
     });
     document.addEventListener('mouseenter', function() {
       cursor.style.opacity = ''; outer.style.opacity = '';
+      overIframe = false;
     });
     // Blur fires when iframe takes focus (mouse over it)
     window.addEventListener('blur', function() {
@@ -340,12 +346,13 @@
     });
     window.addEventListener('focus', function() {
       cursor.style.opacity = ''; outer.style.opacity = '';
+      overIframe = false;
     });
 
     function tick() {
-      ox += (mx - ox) * 0.18;
-      oy += (my - oy) * 0.18;
-      var hovered = document.body.classList.contains('cf-wp-cursor-hover');
+      // Only animate when the pointer has moved appreciably or hover-state changed.
+      ox += (mx - ox) * 0.22;
+      oy += (my - oy) * 0.22;
       var rh = hovered ? 26 : 20, dh = hovered ? 3 : 4;
       outer.style.transform = 'translate3d(' + (ox - rh) + 'px,' + (oy - rh) + 'px,0)';
       cursor.style.transform = 'translate3d(' + (mx - dh) + 'px,' + (my - dh) + 'px,0)';
@@ -355,10 +362,16 @@
 
     var hoverSel = 'a,button,[role="button"],input,textarea,select,.wp-block-button__link,.cf-ambient-btn';
     document.addEventListener('mouseover', function(e) {
-      if (e.target.closest && e.target.closest(hoverSel)) document.body.classList.add('cf-wp-cursor-hover');
+      if (e.target.closest && e.target.closest(hoverSel)) {
+        hovered = true;
+        document.body.classList.add('cf-wp-cursor-hover');
+      }
     }, { passive: true });
     document.addEventListener('mouseout', function(e) {
-      if (e.target.closest && e.target.closest(hoverSel)) document.body.classList.remove('cf-wp-cursor-hover');
+      if (e.target.closest && e.target.closest(hoverSel)) {
+        hovered = false;
+        document.body.classList.remove('cf-wp-cursor-hover');
+      }
     }, { passive: true });
   }
 
