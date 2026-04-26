@@ -67,18 +67,31 @@
       observer.observe(item);
     });
 
-    // 6) Hero parallax
+    // 6) Hero parallax — rAF-throttled so we never write transform more than once per frame
     var cover = page.querySelector('.wp-block-cover');
     if (cover) {
       var bgImg = cover.querySelector('.wp-block-cover__image-background');
       if (bgImg) {
         bgImg.style.transform = 'scale(1.05)';
-        window.addEventListener('scroll', function() {
+        var parallaxQueued = false;
+        var coverInactive = false;
+        function applyParallax() {
+          parallaxQueued = false;
           var rect = cover.getBoundingClientRect();
           if (rect.bottom > 0 && rect.top < window.innerHeight) {
             bgImg.style.transform = 'translateY(' + (-rect.top * 0.15) + 'px) scale(1.05)';
+          } else if (rect.bottom <= 0) {
+            // Cover scrolled past — stop listening; no point recomputing forever
+            coverInactive = true;
+            window.removeEventListener('scroll', onParallaxScroll);
           }
-        }, { passive: true });
+        }
+        function onParallaxScroll() {
+          if (parallaxQueued || coverInactive) return;
+          parallaxQueued = true;
+          requestAnimationFrame(applyParallax);
+        }
+        window.addEventListener('scroll', onParallaxScroll, { passive: true });
       }
     }
 
@@ -96,10 +109,18 @@
     }
   }
 
+  // Defer scroll-animation init until the browser is idle so it doesn't compete with first paint.
+  function scheduleInit() {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initAnimations, { timeout: 800 });
+    } else {
+      setTimeout(initAnimations, 200);
+    }
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAnimations);
+    document.addEventListener('DOMContentLoaded', scheduleInit);
   } else {
-    initAnimations();
+    scheduleInit();
   }
 })();
 
@@ -492,11 +513,17 @@
       document.body.classList.toggle('cf-mobile-menu-open', open);
     };
     update();
-    var mo = new MutationObserver(function(muts) {
+    // Scope observer to nav containers only, not the entire body — every WP block
+    // mutation was triggering selector queries before. attributes: class only.
+    var navs = document.querySelectorAll('.wp-block-navigation__responsive-container');
+    if (navs.length === 0) return;
+    var mo = new MutationObserver(function() {
       cfRewriteMenuLabels();
       update();
     });
-    mo.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], childList: true });
+    navs.forEach(function(n) {
+      mo.observe(n, { attributes: true, attributeFilter: ['class'] });
+    });
   }
 
   // Kick off label rewrite early and watch the menu
@@ -621,10 +648,18 @@
     });
   }
 
+  // Defer collapsible init so it doesn't block first paint.
+  function scheduleCollapsibleInit() {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initWpCollapsibles, { timeout: 800 });
+    } else {
+      setTimeout(initWpCollapsibles, 200);
+    }
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initWpCollapsibles);
+    document.addEventListener('DOMContentLoaded', scheduleCollapsibleInit);
   } else {
-    initWpCollapsibles();
+    scheduleCollapsibleInit();
   }
 
   // === RESTRAINT PASS (Apr 2026) ===
